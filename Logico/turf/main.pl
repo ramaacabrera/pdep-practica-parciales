@@ -55,3 +55,35 @@ ningunJockey(Caballo, Caballeriza):-
     caballo(Caballo),
     caballeriza(_, Caballeriza),
     forall(caballeriza(Jockey, Caballeriza), not(leGusta(Caballo, Jockey))).
+
+% Punto 4
+
+piolin(Jockey):-
+    jockey(Jockey, _, _),
+    forall((gano(Caballo, Premio), esImportante(Premio)), leGusta(Caballo, Jockey)).
+
+esImportante(granPremioNacional).
+esImportante(granPremioRepublica).
+
+% Punto 5
+
+apuestaGanadora(ganadorUnCaballo(Caballo), Resultado):- 
+    salioPrimero(Caballo, Resultado).
+apuestaGanadora(segundoUnCaballo(Caballo), Resultado):- 
+    salioPrimero(Caballo, Resultado).
+apuestaGanadora(segundoUnCaballo(Caballo), Resultado):- 
+    salioSegundo(Caballo, Resultado).
+apuestaGanadora(exacta(PrimerCaballo, SegundoCaballo), Resultado):-
+    salioPrimero(PrimerCaballo, Resultado),
+    salioSegundo(SegundoCaballo, Resultado).
+apuestaGanadora(imperfecta(PrimerCaballo, SegundoCaballo), Resultado):-
+    salioPrimero(PrimerCaballo, Resultado),
+    salioSegundo(SegundoCaballo, Resultado).
+apuestaGanadora(imperfecta(PrimerCaballo, SegundoCaballo), Resultado):-
+    salioPrimero(SegundoCaballo, Resultado),
+    salioSegundo(PrimerCaballo, Resultado).
+
+salioPrimero(Caballo, [Caballo | _]).
+salioSegundo(Caballo, [_ | [Caballo | _]]).
+
+
