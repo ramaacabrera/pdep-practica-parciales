@@ -86,4 +86,30 @@ apuestaGanadora(imperfecta(PrimerCaballo, SegundoCaballo), Resultado):-
 salioPrimero(Caballo, [Caballo | _]).
 salioSegundo(Caballo, [_ | [Caballo | _]]).
 
+%Punto 6 
+
+crin(botafogo, tordo).
+crin(oldMan, alazan).
+crin(energica, ratonero).
+crin(matBoy, palomino).
+crin(yatasto, pinto).
+
+color(tordo, negro).
+color(alazan, marron).
+color(ratonero, gris).
+color(ratonero, negro).
+color(palomino, marron).
+color(palomino, blanco).
+color(pinto, blanco).
+color(pinto, marron).
+
+comprar(Color, Caballos):-
+  findall(Caballo, (crin(Caballo, Crin), color(Crin, Color)), CaballosPosibles),
+  combinar(CaballosPosibles, Caballos),
+  Caballos \= [].
+
+combinar([], []).
+combinar([Caballo|CaballosPosibles], [Caballo|Caballos]):-combinar(CaballosPosibles, Caballos).
+combinar([_|CaballosPosibles], Caballos):-combinar(CaballosPosibles, Caballos).
+
 
