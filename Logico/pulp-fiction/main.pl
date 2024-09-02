@@ -50,15 +50,15 @@ sonPareja(UnPersonaje, OtroPersonaje):-
 sonPareja(UnPersonaje, OtroPersonaje):-
     pareja(OtroPersonaje, UnPersonaje).
 
-tienenRelacion(UnPersonaje, OtroPersonaje):-
+sonDuo(UnPersonaje, OtroPersonaje):-
     sonPareja(OtroPersonaje, UnPersonaje).
-tienenRelacion(UnPersonaje, OtroPersonaje):-
+sonDuo(UnPersonaje, OtroPersonaje):-
     sonAmigos(OtroPersonaje, UnPersonaje).
 
 duoTemible(UnPersonaje, OtroPersonaje):-
     esPeligroso(UnPersonaje),
     esPeligroso(OtroPersonaje),
-    tienenRelacion(UnPersonaje, OtroPersonaje). 
+    sonDuo(UnPersonaje, OtroPersonaje). 
 
 % Punto 3
 
@@ -141,3 +141,27 @@ hartoDe(UnPersonaje, OtroPersonaje):-
     encargo(_, UnPersonaje, _),
     personaje(OtroPersonaje, _),
     forall(encargo(_, UnPersonaje, Encargo), requiereInteractuar(Encargo, OtroPersonaje)).
+
+% Punto 8
+
+% Conocimiento del punto 8
+caracteristicas(vincent, [negro, muchoPelo, tieneCabeza]).
+caracteristicas(jules, [tieneCabeza, muchoPelo]).
+caracteristicas(marvin, [negro]).
+
+% Resolucion
+
+almenosUnaDiferencia(CaracteristicasDeUno, CaracteristicasDeOtro):-
+    member(Caracteristica, CaracteristicasDeUno),
+    not(member(Caracteristica, CaracteristicasDeOtro)).
+almenosUnaDiferencia(CaracteristicasDeUno, CaracteristicasDeOtro):-
+    member(Caracteristica, CaracteristicasDeOtro),
+    not(member(Caracteristica, CaracteristicasDeUno)).
+
+duoDiferenciable(UnPersonaje, OtroPersonaje):-
+    sonDuo(UnPersonaje, OtroPersonaje),
+    caracteristicas(UnPersonaje, CaracteristicasDeUno),
+    caracteristicas(OtroPersonaje, CaracteristicasDeOtro),
+    almenosUnaDiferencia(CaracteristicasDeUno, CaracteristicasDeOtro).
+
+
