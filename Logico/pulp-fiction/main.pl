@@ -1,1 +1,114 @@
+% Base de Conocimientos
+
+personaje(pumkin, ladron([licorerias, estacionesDeServicio])).
+personaje(honeyBunny, ladron([licorerias, estacionesDeServicio])).
+personaje(vincent, mafioso(maton)).
+personaje(jules, mafioso(maton)).
+personaje(marsellus, mafioso(capo)).
+personaje(winston, mafioso(resuelveProblemas)).
+personaje(mia, actriz([foxForceFive])).
+personaje(butch, boxeador).
+pareja(marsellus, mia).
+pareja(pumkin, honeyBunny).
+
+%trabajaPara(Empleador, Empleado)
+trabajaPara(marsellus, vincent).
+trabajaPara(marsellus, jules).
+trabajaPara(marsellus, winston).
+
+% Punto 1
+
+actividadPeligrosa(Personaje):-
+    personaje(Personaje, mafioso(maton)).
+actividadPeligrosa(Personaje):-
+    personaje(Personaje, ladron(QueRoba)),
+    member(licorerias, QueRoba).
+
+esPeligroso(Personaje):-
+    actividadPeligrosa(Personaje).
+esPeligroso(Personaje):-
+    trabajaPara(Personaje, Empleado),
+    esPeligroso(Empleado).
+
+% Punto 2
+
+% Conocimiento del Punto 2
+amigo(vincent, jules).
+amigo(jules, jimmie).
+amigo(vincent, elVendedor).
+
+% Resolucion
+
+% Considero que la relacion de amistad y pareja debe ser simetrica, es decir,
+% que si marsellus es pareja de mia entonces mia es pareja de marsellus
+sonAmigos(UnPersonaje, OtroPersonaje):-
+    amigo(UnPersonaje, OtroPersonaje).
+sonAmigos(UnPersonaje, OtroPersonaje):-
+    amigo(OtroPersonaje, UnPersonaje).
+sonPareja(UnPersonaje, OtroPersonaje):-
+    pareja(UnPersonaje, OtroPersonaje).
+sonPareja(UnPersonaje, OtroPersonaje):-
+    pareja(OtroPersonaje, UnPersonaje).
+
+tienenRelacion(UnPersonaje, OtroPersonaje):-
+    sonPareja(OtroPersonaje, UnPersonaje).
+tienenRelacion(UnPersonaje, OtroPersonaje):-
+    sonAmigos(OtroPersonaje, UnPersonaje).
+
+duoTemible(UnPersonaje, OtroPersonaje):-
+    esPeligroso(UnPersonaje),
+    esPeligroso(OtroPersonaje),
+    tienenRelacion(UnPersonaje, OtroPersonaje). 
+
+% Punto 3
+
+% Conocimiento del Punto 3
+
+%encargo(Solicitante, Encargado, Tarea).
+%las tareas pueden ser cuidar(Protegido), ayudar(Ayudado), buscar(Buscado, Lugar)
+encargo(marsellus, vincent, cuidar(mia)).
+encargo(vincent, elVendedor, cuidar(mia)).
+encargo(marsellus, winston, ayudar(jules)).
+encargo(marsellus, winston, ayudar(vincent)).
+encargo(marsellus, vincent, buscar(butch, losAngeles)).
+
+% Resolucion
+
+estaEnProblemas(Personaje):-
+    trabajaPara(Jefe, Personaje),
+    esPeligroso(Jefe),
+    encargo(Jefe, Personaje, cuidar(Persona)),
+    sonPareja(Jefe, Persona).
+
+estaEnProblemas(Personaje):-
+    encargo(_, Personaje, buscar(Persona, _)),
+    personaje(Persona, boxeador).
+
+% Punto 4 
+
+tieneCerca(UnPersonaje, OtroPersonaje):-
+    sonAmigos(UnPersonaje, OtroPersonaje).
+tieneCerca(UnPersonaje, OtroPersonaje):-
+    trabajaPara(UnPersonaje, OtroPersonaje).
+
+sanCayetano(Personaje):-
+    personaje(Personaje, _),
+    forall(tieneCerca(Personaje, QuienTieneCerca), encargo(Personaje, QuienTieneCerca, _)).
+
+% Punto 5
+
+cantidadEncargos(Personaje, Cantidad):-
+    findall(Encargo, encargo(_, Personaje, Encargo), Encargos),
+    length(Encargos, Cantidad).
+
+tieneMasEncargos(UnPersonaje, OtroPersonaje):-
+    cantidadEncargos(UnPersonaje, CantidadDeUno),
+    cantidadEncargos(OtroPersonaje, CantidadDeOtro),
+    CantidadDeUno > CantidadDeOtro.
+
+masAtareado(Personaje):-
+    personaje(Personaje, _),
+    forall((personaje(OtroPersonaje, _), OtroPersonaje \= Personaje), tieneMasEncargos(Personaje, OtroPersonaje)).
+
+
 
