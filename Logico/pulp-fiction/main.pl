@@ -110,5 +110,34 @@ masAtareado(Personaje):-
     personaje(Personaje, _),
     forall((personaje(OtroPersonaje, _), OtroPersonaje \= Personaje), tieneMasEncargos(Personaje, OtroPersonaje)).
 
+% Punto 6 
 
+respetoActividad(actriz(Peliculas), Respeto):-
+    length(Peliculas, CantidadPeliculas),
+    Respeto is CantidadPeliculas // 10.
 
+respetoActividad(mafioso(resuelveProblemas), 10).
+respetoActividad(mafioso(maton), 1).
+respetoActividad(mafioso(capo), 20).
+
+personajesRespetables(PersonajesRespetables):-
+    findall(Personaje, (personaje(Personaje, Actividad), respetoActividad(Actividad, Respeto), Respeto > 9), PersonajesRespetables).
+
+% Punto 7
+
+requiereInteractuar(cuidar(Personaje), Personaje).
+requiereInteractuar(cuidar(Personaje), OtroPersonaje):-
+    sonAmigos(Personaje, OtroPersonaje).
+
+requiereInteractuar(buscar(Personaje, _), Personaje).
+requiereInteractuar(buscar(Personaje, _), OtroPersonaje):-
+    sonAmigos(Personaje, OtroPersonaje).
+
+requiereInteractuar(ayudar(Personaje), Personaje).
+requiereInteractuar(ayudar(Personaje), OtroPersonaje):-
+    sonAmigos(Personaje, OtroPersonaje).
+
+hartoDe(UnPersonaje, OtroPersonaje):-
+    encargo(_, UnPersonaje, _),
+    personaje(OtroPersonaje, _),
+    forall(encargo(_, UnPersonaje, Encargo), requiereInteractuar(Encargo, OtroPersonaje)).
