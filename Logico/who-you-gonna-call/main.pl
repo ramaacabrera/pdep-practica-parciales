@@ -1,5 +1,6 @@
 % Base de Conocimientos
-herramientasRequeridas(ordenarCuarto, [aspiradora(100), trapeador, plumero]).
+herramientasRequeridas(ordenarCuarto, [[aspiradora(100), escoba], trapeador, plumero]). 
+                                        % la doble lista es un agregado del punto 6
 herramientasRequeridas(ordenarCuarto, [escoba, trapeador, plumero]).
 herramientasRequeridas(limpiarTecho, [escoba, pala]).
 herramientasRequeridas(cortarPasto, [bordedadora]).
@@ -31,11 +32,15 @@ tiene(winston, varitaDeNeutrones).
 tieneHerramientaRequerida(Persona, aspiradora(Potencia)):-
     tiene(Persona, aspiradora(PotenciaEnPosesion)),
     between(0, PotenciaEnPosesion, Potencia).
-    %PotenciaEnPosesion > Potencia.
 
 tieneHerramientaRequerida(Persona, Herramienta):-
     Herramienta \= aspiradora(_),
     tiene(Persona,Herramienta).
+
+% Agregado del Punto 6
+tieneHerramientaRequerida(Persona, ListaHerramientasReemplazables):-
+    member(Herramienta, ListaHerramientasReemplazables),
+    tieneHerramientaRequerida(Persona, Herramienta).
 
 % --------- Punto 3
 
@@ -87,4 +92,11 @@ acepta(Persona, Cliente):-
     tiene(Persona, _),
     tareaPedida(_,Cliente,_),
     puedeRealizarTodasLasTareas(Persona, Cliente),
-    estaDispuesto(Persona, Cliente). 
+    estaDispuesto(Persona, Cliente).
+
+% ------- Punto 6
+
+% Realice los agregados marcados con comentarios para lograr implementar las herramientas reemplazables
+% Lo hice agregando una lista que contiene las posibles herramientas y luego agregando una clausula
+% al predicado tieneHerramientaRequerida para que pueda trabajar con la lista de herramientas posibles
+
