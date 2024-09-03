@@ -29,6 +29,11 @@ jefe(vega, vigilanteDelBarrio).
 jefe(vega, canaBoton).
 jefe(jefeSupremo,sargentoGarcia).
 
+/* 4) Hacer el predicado cadenaDeMando/1 que verifica si la lista recibida se trata de una cadena de
+mando válida, lo que significa que el primero es jefe del segundo y el segundo del tercero y así
+sucesivamente. Debe estar hecho de manera tal que permita generar todas las cadenas de mando
+posibles, de dos o más agentes. */
+
 % Punto 1
 
 agente(Agente):-
@@ -54,3 +59,43 @@ inaccesible(Ubicacion):-
 afincado(Agente):-
     tarea(Agente, _, Ubicacion),
     not((tarea(Agente, _, OtraUbicacion), OtraUbicacion \= Ubicacion)).
+
+% Punto 4
+
+cadenaDeMando([_]).
+cadenaDeMando([PrimerAgente | [SegundoAgente | RestoAgentes]]):-
+    agente(PrimerAgente),
+    agente(SegundoAgente),
+    jefe(PrimerAgente, SegundoAgente),
+    cadenaDeMando([SegundoAgente | RestoAgentes]).
+
+% Punto 5
+
+puntuacionTarea(vigilar(Lugares), Puntos):-
+    length(Lugares, CantidadLugares),
+    Puntos is 5 * CantidadLugares.
+
+puntuacionTarea(ingerir(_, Tamano, Cantidad), Puntos):-
+    UnidadesIngeridas is Tamano * Cantidad,
+    Puntos is -10 * UnidadesIngeridas.
+
+puntuacionTarea(apresar(_, Recompensa), Puntos):-
+    Puntos is Recompensa // 2.
+
+puntuacionTarea(asuntosInternos(AgenteInvestigado), Puntos):-
+    puntuacionTotal(AgenteInvestigado, PuntuacionAgenteInvestigado),
+    Puntos is 2 * PuntuacionAgenteInvestigado.
+
+puntuacionTotal(Agente, PuntuacionTotal):-
+    findall(Puntuacion, (tarea(Agente, Tarea, _), puntuacionTarea(Tarea, Puntuacion)), Puntuaciones),
+    sumlist(Puntuaciones, PuntuacionTotal).
+    
+
+tieneMasPuntos(UnAgente, OtroAgente):-
+    puntuacionTotal(UnAgente, PuntuacionDeUno),
+    puntuacionTotal(OtroAgente, PuntuacionDeOtro),
+    PuntuacionDeUno > PuntuacionDeOtro.
+
+agentePremiado(Agente):-
+    agente(Agente),
+    forall((agente(OtroAgente), OtroAgente \= Agente), tieneMasPuntos(Agente, OtroAgente)).
