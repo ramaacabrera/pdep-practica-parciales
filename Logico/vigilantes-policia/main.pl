@@ -42,4 +42,15 @@ frecuenta(Agente, marDelPlata):-
     member(negocioAlfajores, Ubicaciones).
 frecuenta(Agente, UbicacionFrecuente):-
     tarea(Agente, _, UbicacionFrecuente).
-    
+
+% Punto 2
+
+inaccesible(Ubicacion):-
+    ubicacion(Ubicacion),
+    not(frecuenta(_, Ubicacion)).
+
+% Punto 3
+
+afincado(Agente):-
+    tarea(Agente, _, Ubicacion),
+    not((tarea(Agente, _, OtraUbicacion), OtraUbicacion \= Ubicacion)).
