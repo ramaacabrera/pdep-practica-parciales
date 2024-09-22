@@ -29,10 +29,6 @@ jefe(vega, vigilanteDelBarrio).
 jefe(vega, canaBoton).
 jefe(jefeSupremo,sargentoGarcia).
 
-/* 4) Hacer el predicado cadenaDeMando/1 que verifica si la lista recibida se trata de una cadena de
-mando válida, lo que significa que el primero es jefe del segundo y el segundo del tercero y así
-sucesivamente. Debe estar hecho de manera tal que permita generar todas las cadenas de mando
-posibles, de dos o más agentes. */
 
 % Punto 1
 
