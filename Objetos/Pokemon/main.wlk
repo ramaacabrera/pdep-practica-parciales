@@ -1,15 +1,115 @@
-// pokemon.movimientoCurativo()
+// pokemon.grositud()
 
 class Pokemon {
     var vidaActual
-    var vidaMax
-    var movimientos = []
+    const vidaMax
+    const movimientos = []
+    var condicion = normal
 
     method sumaPoderMovimientos() = movimientos.sum({movimiento => movimiento.poder()})
 
     method grositud() = vidaMax * self.sumaPoderMovimientos()
+
+    method recibirCura(puntosQueCura) {
+        vidaActual = vidaMax.min(vidaActual + puntosQueCura)
+    }
+
+    method recibirDanio(danioRecibido) {
+        vidaActual = 0.max(vidaActual - danioRecibido)
+    }
+
+    method aplicarCondicionEspecial(condicionEspecial){
+        condicion = condicionEspecial
+    }
+
+    method lucharContra(contrincante){
+        const movimientoAUsar = movimientos.findOrElse({movimiento => movimiento.estaDisponible()}, 
+                                                        throw new NoTieneMovimientosException(message = "No tiene movimientos con usos restantes")) 
+                                                        
+        condicion.intentaMoverse(self)
+        if(! (vidaActual > 0)){
+            throw new PokemonNoPuedeMoverseException(message = "Pokemon no se mueve porque no tiene vida")
+        }
+        movimientoAUsar.usarEntre(self, contrincante)
+        
+    }
+
+    method normalizar(){
+        condicion = normal
+    }
 }
 
-class MovimientoCurativo {
-    
+class NoTieneMovimientosException inherits DomainException{}
+
+class PokemonNoPuedeMoverseException inherits DomainException{}
+class MovimientoSinUsosException inherits DomainException{}
+class Movimientos {
+    var usos
+
+    method usarEntre(usuario, contrincante){
+        if(! self.estaDisponible()){
+            throw new MovimientoSinUsosException(message = "Usos agotados")
+        }
+        usos -= 1
+        self.aplicarEfecto(usuario, contrincante)
+    }
+
+    method aplicarEfecto(usuario, contrincante)
+
+    method estaDisponible() = usos > 0
+}
+class MovimientoCurativos {
+    const puntosQueCura
+
+    method poder() = puntosQueCura
+    method aplicarEfecto(usuario, contrincante){
+        usuario.recibirCura(puntosQueCura)
+    }
+}
+
+class MovimientosDaninos {
+    const danioQueProduce
+
+    method poder() = 2 * danioQueProduce
+
+    method aplicarEfecto(usuario, contrincante){
+        contrincante.recibirDanio(danioQueProduce)
+    }
+}
+
+class MovimientosEspeciales {
+    const condicionEspecial
+
+    method poder() = condicionEspecial.poder()
+
+    method aplicarEfecto(usuario, contrincante) {
+      contrincante.aplicarCondicionEspecial(condicionEspecial)
+    }
+
+}
+
+class CondicionesEspeciales {
+    method lePermiteMoverse() = 0.randomUpTo(2).roundUp().even()
+
+    method intentaMoverse(pokemon) {
+      if (! self.lePermiteMoverse()){
+        throw new PokemonNoPuedeMoverseException(message = "Al pokemon la condicion no le permite moverse")
+      }
+    }
+}
+object suenio inherits CondicionesEspeciales{
+    method poder() = 50
+    override method intentaMoverse(pokemon) {
+      super(pokemon)
+      pokemon.normalizar()
+    }
+
+}
+object paralisis inherits CondicionesEspeciales{
+    method poder() = 30
+}
+
+object normal {
+    method intentaMoverse() {}
+
 }
