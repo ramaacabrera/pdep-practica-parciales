@@ -415,3 +415,9 @@
 {"level":"info","message":"⌛ Validating Objetos/Pokemon/main.wlk","timeElapsed":105,"timestamp":"2024-10-30T21:06:00.460Z"}
 {"level":"info","message":"⌛ Validating Objetos/Pokemon/main.wlk","timeElapsed":110,"timestamp":"2024-10-30T21:06:00.638Z"}
 {"level":"info","message":"⌛ Validating Objetos/Pokemon/main.wlk","timeElapsed":105,"timestamp":"2024-10-30T21:06:00.970Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":169,"timestamp":"2024-10-31T19:11:24.975Z"}
+{"level":"info","message":"onRequest - WORKSPACE_URI:file:///d%3A/Utn/PdeP/pdep-practica-parciales","timestamp":"2024-10-31T19:11:25.004Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":115,"timestamp":"2024-10-31T19:11:25.120Z"}
+{"level":"info","message":"⌛ Validating Objetos/Pokemon/main.wlk","timeElapsed":123,"timestamp":"2024-10-31T19:11:25.322Z"}
+{"level":"info","message":"⌛ Validating Objetos/for-sale/main.wlk","timeElapsed":132,"timestamp":"2024-10-31T19:11:25.556Z"}
+{"level":"info","message":"⌛ Validating Objetos/Pokemon/main.wlk","timeElapsed":129,"timestamp":"2024-10-31T19:11:25.685Z"}

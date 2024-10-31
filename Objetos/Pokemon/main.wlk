@@ -23,13 +23,12 @@ class Pokemon {
     }
 
     method lucharContra(contrincante){
-        const movimientoAUsar = movimientos.findOrElse({movimiento => movimiento.estaDisponible()}, 
-                                                        throw new NoTieneMovimientosException(message = "No tiene movimientos con usos restantes")) 
-                                                        
-        condicion.intentaMoverse(self)
-        if(! (vidaActual > 0)){
-            throw new PokemonNoPuedeMoverseException(message = "Pokemon no se mueve porque no tiene vida")
+        if(vidaActual == 0){
+            throw new PokemonNoPuedeMoverseException(message = "El pokemon no esta vivo")
         }
+        const movimientoAUsar = movimientos.findOrElse({movimiento => movimiento.estaDisponible()}, 
+                                                    throw new NoTieneMovimientosException(message = "No tiene movimientos con usos restantes"))                                             
+        condicion.intentaMoverse(self)
         movimientoAUsar.usarEntre(self, contrincante)
         
     }
@@ -107,6 +106,23 @@ object suenio inherits CondicionesEspeciales{
 }
 object paralisis inherits CondicionesEspeciales{
     method poder() = 30
+}
+
+class Confusion inherits CondicionesEspeciales {
+    const turnosQueDura 
+
+    method poder() = 40 * turnosQueDura
+
+    override method intentaMoverse(pokemon) {
+        if (! self.lePermiteMoverse()){
+            pokemon.recibirDanio(20)
+            throw new PokemonNoPuedeMoverseException(message = "Al pokemon la condicion no le permite moverse")
+        }
+        pokemon.aplicarCondicionEspecial(new Confusion(turnosQueDura = turnosQueDura - 1))
+        if(turnosQueDura == 0 ){
+            pokemon.normalizar()
+        }
+    }
 }
 
 object normal {
