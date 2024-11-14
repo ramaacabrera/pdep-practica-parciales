@@ -46,7 +46,7 @@ object tempanoAireado {
 // Masa de agua y sus tipos
 
 object ambiente {
-    var property temperatura
+    var property temperatura = 20 // puse 20 por poner un numero y que no chille el error, pero el valor deberia ser seteado segun el ambiente en el que se encuentre
 }
 
 class MasaDeAgua {
