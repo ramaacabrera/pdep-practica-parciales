@@ -7,27 +7,30 @@ object torneo {
     const postas = [] // [pesca, combate, new Carrera(km = distancia)]
 
     method jugar() {
-        postas.forEach({posta => posta.jugarPosta()})
+        postas.forEach({posta => posta.jugarPosta(participantesTorneo, dragonesDisponibles)})
     }
 
     method participantesTorneo() = participantesTorneo
     method dragonesDisponibles() = dragonesDisponibles
+
+    method dragonElegido(dragon){
+        dragonesDisponibles.remove(dragon)
+    }
 }
 
 class Posta {
-    const participantesPosta = []
+    var participantesPosta
     method esMejorCompetidor(unVikingo, otroVikingo)
 
-    method jugarPosta(){
-        self.inscribirParticipantes()
+    method jugarPosta(participantesTorneo, dragonesDisponibles){
+        self.inscribirParticipantes(participantesTorneo, dragonesDisponibles)
         self.registrarResultados()
         self.efectosPostCompeticion()
     }
 
-    method inscribirParticipantes(){
-        const participantesTorneo = torneo.participantesTorneo()
-
-        participantesPosta.addAll(participantesTorneo.filter({participante => participante.puedeParticipar(self)}))
+    method inscribirParticipantes(participantesTorneo, dragonesDisponibles){
+        participantesPosta = participantesTorneo.map({participante => participante.comoConvieneParticipar(self, dragonesDisponibles)}).filter({participante => participante.puedeParticipar(self)})
+        participantesPosta.forEach({p => p.efectoInscripcion()})
     }
 
     method registrarResultados() {
@@ -111,6 +114,8 @@ class Vikingo {
             else jinete
             })
     }
+
+    method efectoInscripcion(){}
 }
 
 class MonturaException inherits DomainException{}
@@ -229,4 +234,10 @@ class Jinete {
     method velocidad() = dragon.velocidadVuelo() - vikingo.peso()
 
     method sufrirEfectos(posta) = vikingo.aumentaHambre(5)
+
+    method puedeParticipar(posta) = vikingo.hambreQueGanaria(5) < 100
+
+    method efectoInscripcion() {
+        torneo.dragonElegido(dragon)
+    }
 }
