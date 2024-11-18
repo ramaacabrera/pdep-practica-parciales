@@ -9,7 +9,7 @@ class Jugador {
     new Recurso(cantidad = 0, tipoRecurso = piedra)
    ]
    const equipo
-   const edificios
+   const edificios = []
 
    method edificios() = edificios
 
@@ -49,16 +49,18 @@ class Jugador {
 
    method construirEdificio(tipoEdificio){
     self.consumirRecursos(tipoEdificio.recursosConstruccion())
-    edificios.add(new Edificio(tipoEdificio = tipoEdificio, danio = 0, estadoEdificio = normal, duenio = self))
+    self.nuevoEdificio(new Edificio(tipoEdificio = tipoEdificio, danio = 0, estadoEdificio = normal, duenio = self))
+   }
+
+   method nuevoEdificio(edificio){
+    edificios.add(edificio)
    }
 
    method consumirRecursos(recursosAConsumir){
     recursosAConsumir.forEach({recurso => self.gastarRecurso(recurso.tipoRecurso(), recurso.cantidad())})
    }
 
-   method validarRecursos
 }
-
 // Recursos y sus tipos
 
 class Recurso {
@@ -146,6 +148,7 @@ class Equipo {
 
     method edificios() = jugadores.map({jugador => jugador.edificios()}).flatten()
 
+    method edificioConveniente() = self.edificios().find({edificio => edificio.esConvenienteAtacar()})
 }
 
 // Edificios
@@ -155,6 +158,14 @@ class Edificio {
     var danio
     var estadoEdificio
     var duenio
+
+    method tipoEdificio() = tipoEdificio
+    method duenio() = duenio
+
+    method duenio(nuevoDuenio){
+        duenio = nuevoDuenio
+        nuevoDuenio.nuevoEdificio()
+    }
 
     method destruir(){
         estadoEdificio = destruido
@@ -181,7 +192,26 @@ class Edificio {
     method activarPoderEspecial(equipoContrario) {
         estadoEdificio.activarPoderEspecial(self, equipoContrario)
     }
+
+    method esConvertible() = estadoEdificio.convertible(self)
+
+    method esConvenienteAtacar() = estadoEdificio.esConvenienteAtacar(self)
+
+    method mejorarEdificio() {
+        self.validarPosibilidadMejora()
+        duenio.consumirRecursos(tipoEdificio.recursosMejora())
+        estadoEdificio = mejorado
+        self.reparar(danio)
+    }
+
+    method validarPosibilidadMejora(){
+        if(!estadoEdificio.permiteMejora()){
+            throw new MejoraEdificioException(message = "El edificio no puede ser mejorado porque esta destruido o ya esta mejorado")
+        }
+    }
 }
+
+class MejoraEdificioException inherits DomainException{}
 
 // estados de los edificios
 
@@ -190,20 +220,51 @@ object destruido{
     method resistenciaMax(tipoEdificio) = 0
 
     method activarPoderEspecial(edificio, equipoContrario){}
+
+    method convertible(edificio) = false
+    method esConvenienteAtacar(edificio) = false
+    method permiteMejora() = false
 }
 
-object normal {
-
-    method resistenciaMax(tipoEdificio) = tipoEdificio.recursosConstruccion().sum({recurso => recurso.resistenciaQueAporta()})
+class Activo {
+    method resistenciaMax(tipoEdificio) = self.recursosQueDanResistencia(tipoEdificio).sum({recurso => recurso.resistenciaQueAporta()})
+    method recursosQueDanResistencia(tipoEdificio)
 
     method activarPoderEspecial(edificio, equipoContrario){
-        
+        edificio.tipoEdificio().activarPoderEspecial(edificio, equipoContrario)
+        equipoContrario.edificioConveniente().recibirDanio(50)
     }
+
+    method esConvenienteAtacar(edificio) = edificio.tipoEdificio().esConvenienteAtacar() || !edificio.estaEnBuenEstado()
+}
+
+object normal inherits Activo {
+
+    override method recursosQueDanResistencia(tipoEdificio) = tipoEdificio.recursosConstruccion()
+
+    method convertible(edificio) {
+        edificio.tipoEdificio().convertible(edificio)
+    }
+
+    method permiteMejora() = true
+}
+
+object mejorado inherits Activo{
+
+    override method recursosQueDanResistencia(tipoEdificio) = tipoEdificio.recursosMejora()
+    method permiteMejora() = false
+    method convertible(edificio) = false
+
 }
 
 class TipoEdificio {
 
     method recursosConstruccion()
+
+    method convertible(edificio) = true
+    method esConvenienteAtacar() = false
+
+    method recursosMejora() = self.recursosConstruccion().map({recurso => new Recurso(tipoRecurso = recurso.tipoRecurso(), cantidad = 1.5 * recurso.cantidad())})
 }
 
 object galeriaDeTiro inherits TipoEdificio{
@@ -213,6 +274,17 @@ object galeriaDeTiro inherits TipoEdificio{
         new Recurso(tipoRecurso = madera, cantidad = 500),
         new Recurso(tipoRecurso = comida, cantidad = 350)
     ]
+
+    method activarPoderEspecial(edificio, equipoContrario){
+        const edificioAAtacar = equipoContrario.edificioConveniente()
+
+        if(edificioAAtacar.estaEnBuenEstado()){
+            edificioAAtacar.recibirDanio(100)
+        }
+        else{
+            edificioAAtacar.recibirDanio(300)
+        }
+    }
 }
 
 object fuerte inherits TipoEdificio{
@@ -223,6 +295,15 @@ object fuerte inherits TipoEdificio{
         new Recurso(tipoRecurso = comida, cantidad = 200),
         new Recurso(tipoRecurso = madera, cantidad = 300)
     ]
+
+    method activarPoderEspecial(edificio, equipoContrario){
+        if(edificio.estaEnBuenEstado()){
+            edificio.duenio().agregarRecursos(comida, 500)
+        }
+        else{
+            edificio.reparar(20)
+        }
+    }
 }
 
 object templo inherits TipoEdificio{
@@ -232,4 +313,12 @@ object templo inherits TipoEdificio{
         new Recurso(tipoRecurso = piedra, cantidad = 750),
         new Recurso(tipoRecurso = comida, cantidad = 500)
     ]
+
+    method activarPoderEspecial(edificio, equipoContrario){
+        const edificioEnemigoAConvertir = equipoContrario.edificios().find({edificio => edificio.esConvertible()})
+        edificioEnemigoAConvertir.duenio(self)
+    }
+
+    override method convertible(edificio) = false
+    override method esConvenienteAtacar() = true
 }
