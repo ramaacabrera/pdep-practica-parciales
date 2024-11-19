@@ -5,6 +5,7 @@
 // veterinaria.animalesSinPoderAdoptarse()
 // veterinaria.familiasDisponibles()
 // familia.adoptar(animal)
+// 
 
 
 object veterinaria {
@@ -89,6 +90,12 @@ class Perro inherits Animal{
     override method espacioQueOcupa() = raza.espacioOcupadoRaza()
     override method esPeludo() = raza.esRazaPeluda()
     override method tieneProblema(animal) = raza.problematicaCon(animal)
+}
+
+class PerroSalvaje inherits Perro{
+
+    override method esPeludo() = true 
+    override method espacioQueOcupa() = 2 * super()
 }
 
 class Raza {
