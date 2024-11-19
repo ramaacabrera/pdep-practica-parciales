@@ -1,11 +1,26 @@
 // familia.tieneLugar(animal)
 // (persona o mascota).tieneProblema(animal)
 // familia.puedeAdoptar(animal)
-// 
+// veterinaria.familiasConMenoresSinMascotas()
+// veterinaria.animalesSinPoderAdoptarse()
+// veterinaria.familiasDisponibles()
+
+
+class Veterinaria {
+    const familiasParaAdopcion = []
+    const animalesParaDar = []
+
+    method familiasConMenoresSinMascotas() = familiasParaAdopcion.count({fam => fam.tieneMenores() && fam.noTieneMascotas()})
+
+    method animalesSinPoderAdoptarse() = animalesParaDar.filter({ animal => familiasParaAdopcion.all({fam => !fam.puedeAdoptar(animal)}) })
+
+    method familiasDisponibles() = familiasParaAdopcion.filter({fam => animalesParaDar.all({animal => fam.puedeAdoptar(animal)})})
+}
+
 
 class Familia {
     const integrantes = []
-    const mascotas =[]
+    const mascotas = []
     const tamanioCasa
 
     method tieneLugar(animal) = animal.espacioQueOcupa() < self.espacioLibre()
@@ -16,7 +31,11 @@ class Familia {
 
     method puedeAdoptar(animal) = self.tieneLugar(animal) && self.nadieTieneProblemaCon(animal)
 
-    method nadieTieneProblemaCon(animal) = integrantes.any({int => int.tieneProblema(animal)}) && mascotas.any({masc => masc.tieneProblema(animal)})
+    method nadieTieneProblemaCon(animal) = integrantes.all({int => !int.tieneProblema(animal)}) && mascotas.all({masc => !masc.tieneProblema(animal)})
+
+    method tieneMenores() = integrantes.any({int => int.esMenorDeEdad()})
+
+    method noTieneMascotas() = mascotas.isEmpty()
 }
 
 class Persona {
@@ -33,6 +52,7 @@ class Persona {
 
     method tieneProblema(animal) = animalesNoPreferidos.contains(animal) || (esAlergica && animal.esPeludo())
 
+    method esMenorDeEdad() = edad < 18
 }
 
 class Animal{
