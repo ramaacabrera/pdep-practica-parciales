@@ -4,9 +4,10 @@
 // veterinaria.familiasConMenoresSinMascotas()
 // veterinaria.animalesSinPoderAdoptarse()
 // veterinaria.familiasDisponibles()
+// familia.adoptar(animal)
 
 
-class Veterinaria {
+object veterinaria {
     const familiasParaAdopcion = []
     const animalesParaDar = []
 
@@ -15,6 +16,10 @@ class Veterinaria {
     method animalesSinPoderAdoptarse() = animalesParaDar.filter({ animal => familiasParaAdopcion.all({fam => !fam.puedeAdoptar(animal)}) })
 
     method familiasDisponibles() = familiasParaAdopcion.filter({fam => animalesParaDar.all({animal => fam.puedeAdoptar(animal)})})
+
+    method animalAdoptado(animal){
+        animalesParaDar.remove(animal)
+    }
 }
 
 
@@ -36,7 +41,21 @@ class Familia {
     method tieneMenores() = integrantes.any({int => int.esMenorDeEdad()})
 
     method noTieneMascotas() = mascotas.isEmpty()
+
+    method adoptar(animal){
+        self.validarQuePuedeAdoptar(animal)
+        mascotas.add(animal)
+        veterinaria.animalAdoptado(animal)
+    }
+
+    method validarQuePuedeAdoptar(animal){
+        if(!self.puedeAdoptar(animal)){
+            throw new FamiliaNoPuedeAdoptarException(message = "La familia no puede adoptar al animal requerido")
+        }
+    }
 }
+
+class FamiliaNoPuedeAdoptarException inherits DomainException{}
 
 class Persona {
     var edad
